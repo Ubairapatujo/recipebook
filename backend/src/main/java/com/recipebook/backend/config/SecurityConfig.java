@@ -59,19 +59,18 @@ public class SecurityConfig {
         return http.build();
     }
 
-   @Bean
+@Bean
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     
-    // Explicitly add Vercel and Localhost origins
-    configuration.setAllowedOrigins(List.of(
-        "https://recipebook-xi-three.vercel.app",
-        "http://localhost:3000",
-        "http://localhost:8080"
+    // Allows main Vercel domain + all Vercel preview URLs (*.vercel.app) + localhost
+    configuration.setAllowedOriginPatterns(List.of(
+        "https://*.vercel.app",
+        "http://localhost:*"
     ));
     
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(List.of("*")); // Allow all headers
+    configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
