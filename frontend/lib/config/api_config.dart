@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class ApiConfig {
   static String get baseUrl {
     if (kIsWeb) {
-      return 'http://localhost:8080/api';
+      return 'https://recipebook-production-108c.up.railway.app/api';
     }
     if (Platform.isAndroid) {
       // Android Emulator ke liye local host IP
