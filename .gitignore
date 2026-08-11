@@ -1,0 +1,14 @@
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.packages
+frontend/build/
+backend/target/
+backend/.settings/
+backend/.classpath
+backend/.project
+.vscode/
+.idea/
+*.DS_Store
+*.log
+*.env
