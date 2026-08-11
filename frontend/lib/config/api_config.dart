@@ -3,15 +3,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConfig {
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'https://recipebook-production-108c.up.railway.app/api';
-    }
-    if (Platform.isAndroid) {
-      // Android Emulator ke liye local host IP
-      return 'http://10.0.2.2:8080/api';
-    }
-    // iOS Simulator ya physical device (Agar mobile real phone hai to apni PC IP daalein)
-    return 'http://localhost:8080/api';
+    // Direct Railway Live URL return karein sab platforms ke liye
+    return 'https://recipebook-production-108c.up.railway.app/api';
   }
 
   static const int connectTimeout = 30000;

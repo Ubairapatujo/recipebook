@@ -10,6 +10,7 @@ import '../../utils/responsive.dart';
 import '../../widgets/app_nav_bar.dart';
 import '../../widgets/app_footer.dart';
 import '../../widgets/mobile_drawer.dart';
+import '../../config/api_config.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -42,9 +43,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final userId = auth.user?.id ?? 5; // Fallback User ID
 
       // 1. Fetch Live Dashboard Stats
-      final statsResponse = await http.get(
-        Uri.parse('http://localhost:8080/api/dashboard/stats/$userId'),
-      );
+      final statsResponse = await http
+          .get(Uri.parse('${ApiConfig.baseUrl}/dashboard/stats/$userId'));
 
       if (statsResponse.statusCode == 200) {
         final data = json.decode(statsResponse.body);

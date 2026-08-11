@@ -7,7 +7,7 @@
 # IMPORTANT: this must match the port your backend is ACTUALLY running on.
 # Your app screenshot showed localhost:5000 -- if the API runs there,
 # change 8080 to 5000 below.
-$BaseUrl = "http://localhost:8080/api"
+$BaseUrl = "https://recipebook-production-108c.up.railway.app/api"
 
 $DemoUsers = @(
     @{ name = "Ayesha Khan";  email = "ayesha.khan@recipebook.demo";  password = "Demo@1234" },
