@@ -485,7 +485,7 @@ class _HeroText extends StatelessWidget {
               height: 2.5,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(
-                    255, 238, 235, 233), // Bright Red-Orange
+                    255, 240, 233, 231), // Bright Red-Orange
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
