@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import '../../models/recipe.dart';
+import '../../config/api_config.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   final ValueChanged<Recipe>? onRecipeAdded;
@@ -103,38 +104,81 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     }
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Cook time parsing (Extract digits)
-      final rawCookTime = _cookTimeController.text.trim();
-      final numOnly = rawCookTime.replaceAll(RegExp(r'[^0-9]'), '');
-      final parsedCookTime = int.tryParse(numOnly) ?? 0;
+      setState(() {
+        _isUploading = true; // Show loading animation on Publish button
+      });
 
-      // Create Recipe matching model strict types
-      final newRecipe = Recipe(
-        id: DateTime.now().millisecondsSinceEpoch,
-        title: _titleController.text.trim(),
-        ingredients: _ingredientsController.text
-            .split('\n')
-            .where((e) => e.trim().isNotEmpty)
-            .toList(),
-        steps: _stepsController.text.trim(),
-        category: _categoryController.text.trim(),
-        imageUrl: _imageUrlController.text.trim().isEmpty
-            ? null
-            : _imageUrlController.text.trim(),
-        cookTimeMinutes: parsedCookTime,
-        ownerId: 1,
-        ownerName: _ownerNameController.text.trim().isEmpty
-            ? 'Anonymous'
-            : _ownerNameController.text.trim(),
-        createdAt: DateTime.now(),
-      );
+      try {
+        // 1. Cook time parsing (Extract digits)
+        final rawCookTime = _cookTimeController.text.trim();
+        final numOnly = rawCookTime.replaceAll(RegExp(r'[^0-9]'), '');
+        final parsedCookTime = int.tryParse(numOnly) ?? 0;
 
-      if (widget.onRecipeAdded != null) {
-        widget.onRecipeAdded!(newRecipe);
+        // 2. Prepare JSON Payload for Spring Boot/Backend API
+        final newRecipeData = {
+          'title': _titleController.text.trim(),
+          'category': _categoryController.text.trim(),
+          'cookTimeMinutes': parsedCookTime,
+          'ownerName': _ownerNameController.text.trim().isEmpty
+              ? 'Anonymous'
+              : _ownerNameController.text.trim(),
+          'ingredients': _ingredientsController.text
+              .split('\n')
+              .where((e) => e.trim().isNotEmpty)
+              .toList(),
+          'steps': _stepsController.text.trim(),
+          'imageUrl': _imageUrlController.text.trim().isEmpty
+              ? null
+              : _imageUrlController.text.trim(),
+        };
+
+        // 3. Send HTTP POST request to Backend API
+        final response = await http.post(
+          Uri.parse(
+              '${ApiConfig.baseUrl}/recipes'), // Make sure ApiConfig is imported
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(newRecipeData),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final createdData = jsonDecode(response.body);
+          final newRecipe = Recipe.fromJson(createdData);
+
+          if (widget.onRecipeAdded != null) {
+            widget.onRecipeAdded!(newRecipe);
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Recipe published successfully! 🎉'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context);
+          }
+        } else {
+          throw Exception(
+              'Server responded with status: ${response.statusCode}');
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to publish recipe: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isUploading = false;
+          });
+        }
       }
-      Navigator.pop(context);
     }
   }
 
