@@ -44,14 +44,14 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       // 1. Get raw image bytes for Flutter Web
       final Uint8List bytes = await image.readAsBytes();
 
-      // 2. Prepare Cloudinary Multipart Request
+      // 2. Prepare Cloudinary Multipart Request with YOUR credentials
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://api.cloudinary.com/v1_1/demo/image/upload'),
+        Uri.parse('https://api.cloudinary.com/v1_1/ljwsnzy7/image/upload'),
       );
 
-      // Cloudinary unsigned preset parameter
-      request.fields['upload_preset'] = 'docs_upload_example_us_preset';
+      // Your Unsigned preset parameter
+      request.fields['upload_preset'] = 'recipe_preset';
 
       // Attach bytes payload
       request.files.add(
