@@ -41,32 +41,34 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         _isUploading = true;
       });
 
-      // 1. Read bytes from selected image (Flutter Web Compatible)
+      // 1. Get raw image bytes for Flutter Web
       final Uint8List bytes = await image.readAsBytes();
 
-      // 2. Prepare ImgBB Multipart Request
+      // 2. Prepare Cloudinary Multipart Request
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse(
-            'https://api.imgbb.com/1/upload?key=6d207e02198a847e3710d53813b3dd05'),
+        Uri.parse('https://api.cloudinary.com/v1_1/demo/image/upload'),
       );
 
-      // 3. Attach file bytes
+      // Cloudinary unsigned preset parameter
+      request.fields['upload_preset'] = 'docs_upload_example_us_preset';
+
+      // Attach bytes payload
       request.files.add(
         http.MultipartFile.fromBytes(
-          'image',
+          'file',
           bytes,
-          filename: image.name.isNotEmpty ? image.name : 'recipe_image.jpg',
+          filename: image.name.isNotEmpty ? image.name : 'recipe.jpg',
         ),
       );
 
-      // 4. Send request to ImgBB
+      // 3. Execute request
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final String uploadedUrl = data['data']['url'];
+        final String uploadedUrl = data['secure_url'];
 
         setState(() {
           _imageUrlController.text = uploadedUrl;
@@ -81,8 +83,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           );
         }
       } else {
-        throw Exception(
-            'Upload failed with status code: ${response.statusCode}');
+        throw Exception('Cloudinary upload error (${response.statusCode})');
       }
     } catch (e) {
       if (mounted) {
