@@ -116,24 +116,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         final numOnly = rawCookTime.replaceAll(RegExp(r'[^0-9]'), '');
         final parsedCookTime = int.tryParse(numOnly) ?? 0;
 
-        // 2. Prepare JSON Payload for Spring Boot/Backend API
+        // Prepare JSON Payload matching Spring Boot Entity
         final newRecipeData = {
           'title': _titleController.text.trim(),
           'category': _categoryController.text.trim(),
           'cookTimeMinutes': parsedCookTime,
-          'ownerName': _ownerNameController.text.trim().isEmpty
-              ? 'Anonymous'
-              : _ownerNameController.text.trim(),
-          'ingredients': _ingredientsController.text
-              .split('\n')
-              .where((e) => e.trim().isNotEmpty)
-              .toList(),
+          'ingredients': _ingredientsController.text.trim(), // Direct String
           'steps': _stepsController.text.trim(),
           'imageUrl': _imageUrlController.text.trim().isEmpty
               ? null
               : _imageUrlController.text.trim(),
+          // Mandatory for Spring Boot Entity (@ManyToOne owner)
+          'owner': {
+            'id': 1 // Database mein existing user ki ID (e.g. 1)
+          }
         };
-
         // 3. Send HTTP POST request to Backend API
         final response = await http.post(
           Uri.parse(
