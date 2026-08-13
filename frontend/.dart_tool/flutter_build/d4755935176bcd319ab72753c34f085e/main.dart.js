@@ -92765,7 +92765,7 @@ if(a0.length===0)a0=null
 a1=t.N
 j=A.U(["title",e,"category",c,"cookTimeMinutes",k,"ingredients",b,"steps",a,"imageUrl",a0,"owner",A.U(["id",1],a1,t.S)],a1,t.X)
 a0=A.e9(u.g,0,null)
-a1=A.U(["Content-Type","application/json"],a1,a1)
+a1=A.U(["Content-Type","application/json","Accept","application/json"],a1,a1)
 s=8
 return A.J(A.aMD(a0,B.ai.vg(j,null),a1),$async$zh)
 case 8:i=a5

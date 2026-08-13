@@ -133,12 +133,13 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         };
         // 3. Send HTTP POST request to Backend API
         final response = await http.post(
-          Uri.parse(
-              '${ApiConfig.baseUrl}/recipes'), // Make sure ApiConfig is imported
-          headers: {'Content-Type': 'application/json'},
+          Uri.parse('${ApiConfig.baseUrl}/recipes'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
           body: jsonEncode(newRecipeData),
         );
-
         if (response.statusCode == 200 || response.statusCode == 201) {
           final createdData = jsonDecode(response.body);
           final newRecipe = Recipe.fromJson(createdData);
