@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -40,14 +41,28 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         _isUploading = true;
       });
 
-      final bytes = await image.readAsBytes();
-      final base64Image = base64Encode(bytes);
+      // 1. Read bytes from selected image (Flutter Web Compatible)
+      final Uint8List bytes = await image.readAsBytes();
 
-      final response = await http.post(
+      // 2. Prepare ImgBB Multipart Request
+      final request = http.MultipartRequest(
+        'POST',
         Uri.parse(
             'https://api.imgbb.com/1/upload?key=6d207e02198a847e3710d53813b3dd05'),
-        body: {'image': base64Image},
       );
+
+      // 3. Attach file bytes
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          bytes,
+          filename: image.name.isNotEmpty ? image.name : 'recipe_image.jpg',
+        ),
+      );
+
+      // 4. Send request to ImgBB
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -66,7 +81,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           );
         }
       } else {
-        throw Exception('Upload failed');
+        throw Exception(
+            'Upload failed with status code: ${response.statusCode}');
       }
     } catch (e) {
       if (mounted) {
