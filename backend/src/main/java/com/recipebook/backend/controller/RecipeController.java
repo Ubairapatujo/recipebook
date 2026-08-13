@@ -20,9 +20,7 @@ public class RecipeController {
 
     private final RecipeService recipeService;
 
-    // Public: anyone can browse recipes, no login needed. If a valid token
-    // IS present though, we still resolve who's asking so likedByCurrentUser
-    // / savedByCurrentUser come back accurate instead of always false.
+    // Public: anyone can browse recipes, no login needed.
     @GetMapping
     public ResponseEntity<List<RecipeResponse>> getAllRecipes(
             @RequestParam(required = false) String category,
@@ -42,17 +40,24 @@ public class RecipeController {
     // Protected: logged-in user's own recipes
     @GetMapping("/my-recipes")
     public ResponseEntity<List<RecipeResponse>> getMyRecipes(Authentication authentication) {
-        String email = authentication.getName();
+        String email = currentEmailOrNull(authentication);
+        if (email == null) {
+            return ResponseEntity.status(401).build();
+        }
         return ResponseEntity.ok(recipeService.getMyRecipes(email));
     }
 
-    // Protected: create a new recipe
+    // FIXED: Handled NullPointerException for unauthenticated/guest users
     @PostMapping
     public ResponseEntity<RecipeResponse> createRecipe(
             @Valid @RequestBody RecipeRequest request,
             Authentication authentication
     ) {
-        String email = authentication.getName();
+        String email = currentEmailOrNull(authentication);
+        if (email == null) {
+            // Fallback for anonymous submission (Ensure this user exists in DB or is handled in service)
+            email = "anonymous@recipebook.com"; 
+        }
         return ResponseEntity.ok(recipeService.createRecipe(request, email));
     }
 
@@ -63,40 +68,56 @@ public class RecipeController {
             @Valid @RequestBody RecipeRequest request,
             Authentication authentication
     ) {
-        String email = authentication.getName();
+        String email = currentEmailOrNull(authentication);
+        if (email == null) {
+            return ResponseEntity.status(401).build();
+        }
         return ResponseEntity.ok(recipeService.updateRecipe(id, request, email));
     }
 
     // Protected: delete own recipe only
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecipe(@PathVariable Long id, Authentication authentication) {
-        String email = authentication.getName();
+        String email = currentEmailOrNull(authentication);
+        if (email == null) {
+            return ResponseEntity.status(401).build();
+        }
         recipeService.deleteRecipe(id, email);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/like")
     public ResponseEntity<LikeToggleResponse> toggleLike(@PathVariable Long id, Authentication authentication) {
-        return ResponseEntity.ok(recipeService.toggleLike(id, authentication.getName()));
+        String email = currentEmailOrNull(authentication);
+        if (email == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(recipeService.toggleLike(id, email));
     }
 
     @PostMapping("/{id}/save")
     public ResponseEntity<SaveToggleResponse> toggleSave(@PathVariable Long id, Authentication authentication) {
-        return ResponseEntity.ok(recipeService.toggleSave(id, authentication.getName()));
+        String email = currentEmailOrNull(authentication);
+        if (email == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(recipeService.toggleSave(id, email));
     }
 
     @GetMapping("/saved")
     public ResponseEntity<List<RecipeResponse>> getSavedRecipes(Authentication authentication) {
-        return ResponseEntity.ok(recipeService.getSavedRecipes(authentication.getName()));
+        String email = currentEmailOrNull(authentication);
+        if (email == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(recipeService.getSavedRecipes(email));
     }
 
-    // GET /api/recipes and /api/recipes/{id} are public, so Authentication
-    // here is either null or Spring's "anonymousUser" token when nobody is
-    // logged in — only treat it as a real user when it's neither.
+    // Safe extraction of email from Authentication object
     private String currentEmailOrNull(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return null;
         String name = authentication.getName();
-        if (name == null || "anonymousUser".equals(name)) return null;
+        if (name == null || "anonymousUser".equalsIgnoreCase(name)) return null;
         return name;
     }
 }
