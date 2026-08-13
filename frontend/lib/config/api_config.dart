@@ -1,10 +1,7 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
-
 class ApiConfig {
   static String get baseUrl {
-    // Direct Railway Live URL return karein sab platforms ke liye
-    return 'https://recipebook-production-108c.up.railway.app/api';
+    // Direct Railway Live URL (without trailing /api)
+    return 'https://recipebook-production-108c.up.railway.app';
   }
 
   static const int connectTimeout = 30000;
