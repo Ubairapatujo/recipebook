@@ -1,7 +1,7 @@
 class ApiConfig {
   static String get baseUrl {
-    // Direct Railway Live URL (without trailing /api)
-    return 'https://recipebook-production-108c.up.railway.app';
+    // Railway backend + /api prefix — matches @RequestMapping("/api/recipes") in RecipeController
+    return 'https://recipebook-production-108c.up.railway.app/api';
   }
 
   static const int connectTimeout = 30000;
