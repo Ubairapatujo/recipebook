@@ -1,3 +1,7 @@
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/api_client.dart';
+
 class AppUser {
   final int id;
   final String name;

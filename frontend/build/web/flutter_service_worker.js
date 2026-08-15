@@ -28,7 +28,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "4291d9a8cad895f7b00f67b8fab0c942
 "flutter_bootstrap.js": "aae4b491f414bf15fc53bf1b1f62a91c",
 "index.html": "623d1f9d2bb302454a1cffb3cab0d4f5",
 "/": "623d1f9d2bb302454a1cffb3cab0d4f5",
-"main.dart.js": "2924c04712aa75b971ca8013b4886931",
+"main.dart.js": "933ce0e9cadd907aa30750fbe65e63ec",
 "manifest.json": "402d0a19ffa61bbdce3f085af2bdf13c",
 "version.json": "edad1dab27167a5c4f1e996ca5edd474"};
 // The application shell files that are downloaded before a service worker can

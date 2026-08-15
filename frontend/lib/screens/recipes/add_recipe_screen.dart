@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../../models/recipe.dart';
-import '../../config/api_config.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/api_client.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   final ValueChanged<Recipe>? onRecipeAdded;
@@ -111,12 +113,22 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       });
 
       try {
+        // 0. Must be logged in — get JWT token from AuthProvider
+        final authProvider = context.read<AuthProvider>();
+        final currentUser = authProvider.user;
+
+        if (currentUser == null) {
+          throw Exception('You must be logged in to publish a recipe.');
+        }
+
         // 1. Cook time parsing (Extract digits)
         final rawCookTime = _cookTimeController.text.trim();
         final numOnly = rawCookTime.replaceAll(RegExp(r'[^0-9]'), '');
         final parsedCookTime = int.tryParse(numOnly) ?? 0;
 
         // Prepare JSON Payload matching Spring Boot Entity
+        // NOTE: 'owner' is intentionally NOT sent — backend resolves the
+        // owner from the JWT token (Authorization header), not the body.
         final newRecipeData = {
           'title': _titleController.text.trim(),
           'category': _categoryController.text.trim(),
@@ -126,20 +138,16 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           'imageUrl': _imageUrlController.text.trim().isEmpty
               ? null
               : _imageUrlController.text.trim(),
-          // Mandatory for Spring Boot Entity (@ManyToOne owner)
-          'owner': {
-            'id': 1 // Database mein existing user ki ID (e.g. 1)
-          }
         };
-        // 3. Send HTTP POST request to Backend API
-        final response = await http.post(
-          Uri.parse('${ApiConfig.baseUrl}/recipes'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: jsonEncode(newRecipeData),
+
+        // 2. Send authenticated POST request via ApiClient
+        //    (adds Authorization: Bearer <token> + correct /api base URL)
+        final response = await ApiClient.post(
+          '/recipes',
+          body: newRecipeData,
+          token: currentUser.token,
         );
+
         if (response.statusCode == 200 || response.statusCode == 201) {
           final createdData = jsonDecode(response.body);
           final newRecipe = Recipe.fromJson(createdData);
@@ -158,8 +166,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
             Navigator.pop(context);
           }
         } else {
-          throw Exception(
-              'Server responded with status: ${response.statusCode}');
+          throw Exception(ApiClient.extractError(response.body));
         }
       } catch (e) {
         if (mounted) {
