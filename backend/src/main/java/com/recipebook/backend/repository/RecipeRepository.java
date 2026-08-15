@@ -19,13 +19,15 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     List<Recipe> findByOwnerId(Long ownerId);
 
-    // Native SQL Query (Bypasses JPQL attribute errors completely)
+    // Native SQL Query — Postgres compatible, computed directly from base
+    // tables (recipe, recipe_like, saved_recipe, review). Replaces the old
+    // SQL-Server-only vw_UserDashboardStats view + ISNULL() query, which
+    // does not exist on the Supabase Postgres database.
     @Query(value = "SELECT " +
-                   "  ISNULL(total_recipes, 0) AS totalRecipes, " +
-                   "  ISNULL(total_likes, 0) AS totalLikes, " +
-                   "  ISNULL(total_saves, 0) AS totalSaves, " +
-                   "  ISNULL(avg_rating, 0.0) AS avgRating " +
-                   "FROM vw_UserDashboardStats " +
-                   "WHERE user_id = :userId", nativeQuery = true)
+                   "  COALESCE((SELECT COUNT(*) FROM recipe r WHERE r.user_id = :userId), 0) AS totalRecipes, " +
+                   "  COALESCE((SELECT COUNT(*) FROM recipe_like rl JOIN recipe r ON rl.recipe_id = r.id WHERE r.user_id = :userId), 0) AS totalLikes, " +
+                   "  COALESCE((SELECT COUNT(*) FROM saved_recipe sr JOIN recipe r ON sr.recipe_id = r.id WHERE r.user_id = :userId), 0) AS totalSaves, " +
+                   "  COALESCE((SELECT AVG(rv.rating) FROM review rv JOIN recipe r ON rv.recipe_id = r.id WHERE r.user_id = :userId), 0.0) AS avgRating",
+           nativeQuery = true)
     DashboardStatsProjection findDashboardStatsByUserIdNative(@Param("userId") Long userId);
 }
