@@ -286,7 +286,7 @@ This project demonstrates:
 
 ## Author
 
-**Eira**
+**Ubaira patujo**
 Computer Science student, NED University of Engineering and Technology, Karachi
 
 ---
