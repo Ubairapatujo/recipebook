@@ -12,13 +12,17 @@ import com.recipebook.backend.model.SavedRecipe;
 import com.recipebook.backend.model.User;
 import com.recipebook.backend.repository.RecipeLikeRepository;
 import com.recipebook.backend.repository.RecipeRepository;
+import com.recipebook.backend.repository.ReviewRepository;
 import com.recipebook.backend.repository.SavedRecipeRepository;
 import com.recipebook.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class RecipeService {
     private final UserRepository userRepository;
     private final RecipeLikeRepository recipeLikeRepository;
     private final SavedRecipeRepository savedRecipeRepository;
+    private final ReviewRepository reviewRepository;
 
     public List<RecipeResponse> getAllRecipes(String category, String search, String currentUserEmail) {
         List<Recipe> recipes;
@@ -172,6 +177,17 @@ public class RecipeService {
             }
         }
 
+        List<Map<String, Object>> comments = reviewRepository.findByRecipeId(recipe.getId()).stream()
+                .filter(r -> r.getComment() != null && !r.getComment().isBlank())
+                .map(r -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("text", r.getComment());
+                    map.put("author", r.getUser().getName());
+                    map.put("time", r.getCreatedAt().toString());
+                    return map;
+                })
+                .collect(Collectors.toList());
+
         return new RecipeResponse(
                 recipe.getId(),
                 recipe.getTitle(),
@@ -185,7 +201,8 @@ public class RecipeService {
                 recipe.getCreatedAt(),
                 likeCount,
                 liked,
-                saved
+                saved,
+                comments
         );
     }
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -21,10 +22,10 @@ public class RecipeResponse {
     private Long ownerId;
     private String ownerName;
     private LocalDateTime createdAt;
-
     // Real like/save state — populated on every fetch, not just on toggle,
     // so the count and per-user state are always accurate on page load.
     private Long likeCount;
     private boolean likedByCurrentUser;
     private boolean savedByCurrentUser;
+    private List<Map<String, Object>> comments;
 }
