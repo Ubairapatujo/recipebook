@@ -107,7 +107,7 @@ recipebook/
 - **Controller** — exposes REST endpoints, extracts the authenticated user from the request, and delegates to the service layer.
 - **Service** — contains business logic (e.g. toggling a like, computing like counts, building API responses).
 - **Repository** — Spring Data JPA interfaces for database access.
-- **Model** — JPA entities mapped to SQL Server tables (`Recipe`, `User`, `RecipeLike`, `SavedRecipe`, `Review`, etc.).
+- **Model** — JPA entities mapped to the database tables (`Recipe`, `User`, `RecipeLike`, `SavedRecipe`, `Review`, etc.).
 - **DTO** — request/response objects that shape what the API sends and receives, decoupled from the database entities.
 - **Security/Config** — JWT filter (`JwtAuthFilter`) validates tokens on each request and populates the security context; `SecurityConfig` defines route access rules and CORS policy.
 - **Exception** — centralized handling for cases like resource-not-found and unauthorized actions.
@@ -286,7 +286,7 @@ This project demonstrates:
 
 ## Author
 
-**Ubaira patujo**
+**Ubaira Patujo**
 Computer Science student, NED University of Engineering and Technology, Karachi
 
 ---
@@ -294,4 +294,3 @@ Computer Science student, NED University of Engineering and Technology, Karachi
 ## License
 
 License: To be added.
-
