@@ -2,12 +2,14 @@
 
 A full-stack recipe-sharing web application — built to let people create, discover, and interact with recipes shared by other users.
 
-**Stack:** Flutter Web → Spring Boot REST API (JWT auth) → SQL Server (Azure SQL)
+**Stack:** Flutter Web → Spring Boot REST API (JWT auth) → PostgreSQL (Supabase)
+
+**Live:** [Frontend](https://recipebook-xi-three.vercel.app) · [Backend API](https://recipebook-production-108c.up.railway.app/api)
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-REST%20API-brightgreen)
 ![Flutter](https://img.shields.io/badge/Flutter-Web-blue)
-![SQL Server](https://img.shields.io/badge/Database-SQL%20Server%20%2F%20Azure%20SQL-lightgrey)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%20%2F%20Supabase-336791)
 ![JWT](https://img.shields.io/badge/Auth-JWT-yellow)
 
 ---
@@ -16,16 +18,16 @@ A full-stack recipe-sharing web application — built to let people create, disc
 
 RecipeBook is a full-stack application where users can register, log in, and share recipes with the community. Other users can browse recipes, search and filter by category, like and save recipes they enjoy, and leave comments. Each user can manage their own recipes (create, edit, delete) through a dedicated dashboard.
 
-The project was built to demonstrate a complete, production-style full-stack workflow: a Flutter Web frontend consuming a secured Spring Boot REST API, backed by a cloud-hosted SQL Server database.
+The project was built to demonstrate a complete, production-style full-stack workflow: a Flutter Web frontend consuming a secured Spring Boot REST API, backed by a cloud-hosted PostgreSQL database — deployed end-to-end across Vercel (frontend), Railway (backend), and Supabase (database).
 
 **Architecture at a glance:**
 
 ```
-Flutter Web (Frontend)
+Flutter Web (Frontend) — Vercel
         ↓  HTTPS / REST
-Spring Boot API (Backend)
+Spring Boot API (Backend) — Railway
         ↓  JDBC / JPA
-SQL Server — Azure SQL (Database)
+PostgreSQL — Supabase (Database)
 ```
 
 ---
@@ -69,7 +71,7 @@ SQL Server — Azure SQL (Database)
 | Spring Security | Authentication & authorization | `backend/security`, `backend/config` |
 | JWT | Stateless auth tokens | `backend/security` |
 | BCrypt | Password hashing | `backend/service` |
-| SQL Server / Azure SQL | Relational database | Cloud-hosted (Azure) |
+| PostgreSQL / Supabase | Relational database | Cloud-hosted (Supabase) |
 | Spring Data JPA / Hibernate | ORM / database access | `backend/repository`, `backend/model` |
 | Maven | Backend build tool | `backend/pom.xml` |
 
@@ -125,8 +127,8 @@ recipebook/
 
 ## Database
 
-- **Engine:** Microsoft SQL Server, hosted on **Azure SQL Database**.
-- The backend connects via Spring Data JPA / Hibernate, with schema managed through Hibernate's `ddl-auto` setting.
+- **Engine:** PostgreSQL, hosted on **Supabase**.
+- The backend connects via Spring Data JPA / Hibernate over Supabase's Session Pooler connection, with schema managed through Hibernate's `ddl-auto` setting.
 - **Core entities:** `User`, `Recipe`, `RecipeLike`, `SavedRecipe`, `Review` (used for both comments and ratings).
 
 ---
@@ -178,7 +180,7 @@ Real credentials must never be committed. Use a local, git-ignored configuration
 - Java 17
 - Maven
 - Flutter SDK
-- Access to a SQL Server / Azure SQL instance
+- Access to a PostgreSQL instance (e.g. Supabase)
 
 ### Backend Setup
 ```bash
@@ -214,9 +216,11 @@ flutter build web
 
 | Layer | Platform | Status |
 |---|---|---|
-| Frontend | Vercel | Deployed |
-| Database | Azure SQL | Deployed |
-| Backend | — | In progress |
+| Frontend | Vercel | Deployed — [live](https://recipebook-xi-three.vercel.app) |
+| Backend | Railway | Deployed — [live](https://recipebook-production-108c.up.railway.app/api) |
+| Database | Supabase (PostgreSQL) | Deployed |
+
+**Note on migration:** the project originally targeted Azure SQL Database with a locally-run backend. It was later migrated to Railway (backend hosting) and Supabase PostgreSQL (database) for a fully deployed, publicly accessible setup.
 
 ---
 
@@ -236,9 +240,9 @@ flutter build web
 - Search & category filtering
 - Likes, saves, and comments
 - Responsive Flutter Web UI with light/dark theme
+- Full public deployment (Vercel + Railway + Supabase)
 
 ### In Progress
-- Backend production deployment
 - Rating aggregation (average rating per recipe)
 
 ### Planned
@@ -274,7 +278,7 @@ This project demonstrates:
 - End-to-end full-stack development across Flutter and Spring Boot
 - REST API design with a layered backend architecture (Controller/Service/Repository/DTO)
 - Stateless authentication using JWT and secure password storage with BCrypt
-- Integration with a cloud-hosted relational database (Azure SQL)
+- Integration with a cloud-hosted relational database (Supabase PostgreSQL), including migrating a production data layer between providers
 - Frontend state management and API integration in Flutter
 - Secure configuration practices for sensitive credentials
 
