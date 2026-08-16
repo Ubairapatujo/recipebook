@@ -43,7 +43,7 @@ class Recipe {
       createdAt:
           DateTime.tryParse(json['createdAt'] ?? json['created_at'] ?? '') ??
               DateTime.now(),
-      likes: json['likes'],
+      likes: json['likeCount'] ?? json['likes'] ?? 0,
       rating: json['rating'],
       comments: _parseComments(json['comments']), // 👈 3. Comments parsing
     );
