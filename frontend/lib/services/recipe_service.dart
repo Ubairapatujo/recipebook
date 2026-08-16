@@ -30,10 +30,15 @@ class RecipeService {
     return getAllRecipes();
   }
 
-  // Get Single Recipe By ID
-  Future<Recipe> getRecipeById(int id) async {
-    final response =
-        await http.get(Uri.parse('${ApiConfig.baseUrl}/recipes/$id'));
+  Future<Recipe> getRecipeById(int id, {String? token}) async {
+    final headers = <String, String>{};
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/recipes/$id'),
+      headers: headers,
+    );
     if (response.statusCode == 200) {
       return Recipe.fromJson(jsonDecode(response.body));
     } else {

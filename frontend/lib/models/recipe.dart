@@ -11,7 +11,9 @@ class Recipe {
   final DateTime createdAt;
   final int? likes;
   final int? rating;
-  final List<Map<String, dynamic>> comments; // 👈 1. Nayi field add ki
+  final List<Map<String, dynamic>> comments;
+  final bool likedByCurrentUser;
+  final bool savedByCurrentUser;
 
   Recipe({
     required this.id,
@@ -26,7 +28,9 @@ class Recipe {
     required this.createdAt,
     this.likes,
     this.rating,
-    this.comments = const [], // 👈 2. Default empty list rakhi
+    this.comments = const [],
+    this.likedByCurrentUser = false,
+    this.savedByCurrentUser = false,
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
@@ -45,11 +49,12 @@ class Recipe {
               DateTime.now(),
       likes: json['likeCount'] ?? json['likes'] ?? 0,
       rating: json['rating'],
-      comments: _parseComments(json['comments']), // 👈 3. Comments parsing
+      comments: _parseComments(json['comments']),
+      likedByCurrentUser: json['likedByCurrentUser'] ?? false,
+      savedByCurrentUser: json['savedByCurrentUser'] ?? false,
     );
   }
 
-  // 👈 4. Comments parse karne ke liye helper method
   static List<Map<String, dynamic>> _parseComments(dynamic data) {
     if (data == null || data is! List) return [];
 

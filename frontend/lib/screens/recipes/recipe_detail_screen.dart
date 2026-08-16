@@ -43,8 +43,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       _errorMessage = null;
     });
 
+    final auth = context.read<AuthProvider>();
+
     try {
-      final recipe = await _recipeService.getRecipeById(widget.recipeId);
+      final recipe = await _recipeService.getRecipeById(
+        widget.recipeId,
+        token: auth.isLoggedIn ? auth.user?.token : null,
+      );
       if (!mounted) return;
 
       int count = recipe.likes ?? 0;
@@ -54,8 +59,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         _recipe = recipe;
         _likesCount = count;
         _rating = ratingValue;
-        _isLiked = false;
-        _isBookmarked = false;
+        _isLiked = recipe.likedByCurrentUser;
+        _isBookmarked = recipe.savedByCurrentUser;
         _isLoading = false;
       });
     } catch (e) {
